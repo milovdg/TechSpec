@@ -2,18 +2,17 @@
 
 ## Overview
 
-This document describes integration with **[Payment Provider]** for **[Country]** for **[Broker]**. The goal is to implement P2C deposits and withdrawals using a new payment provider.
+This document describes integration with **[Payment Provider]** for **[Country]** for **[Broker]**.  
+The goal is to implement **P2C (Person-to-Company)** deposits and withdrawals using the new provider.
 
 ---
 
 ## 🔗 Swagger Definition
 
-Open this link in [Swagger Editor](https://editor.swagger.io/) to see and try the API definition:
-
-👉 [Swagger Editor link](https://editor.swagger.io/#)
+👉 [Open this API in Swagger Editor](https://editor.swagger.io/)
 
 <details>
-<summary>Click to expand YAML</summary>
+<summary>Click to expand OpenAPI YAML</summary>
 
 ```yaml
 openapi: 3.0.0
@@ -81,18 +80,3 @@ paths:
                       example: "Dima Dima"
                     client_email:
                       type: string
-                      example: "test-lic@test.tst"
-                locate:
-                  type: string
-                  example: "en"
-      responses:
-        '200':
-          description: Success response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  redirect_url:
-                    type: string
-                    example: "https://[provider]/redirect"
