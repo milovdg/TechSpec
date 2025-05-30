@@ -80,3 +80,4 @@ paths:
                       example: "Dima Dima"
                     client_email:
                       type: string
+</details>
