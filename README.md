@@ -4,72 +4,64 @@ Integration with **[Payment Provider]** for **[Country]** for **[Broker]**.
 
 ---
 
-## 🖼️ User Flow
+## 🧩 Full Deposit Flow Diagram (PlantUML)
 
-![Big picture user flow](https://i.postimg.cc/zvvD0Ym0/UI-flow-for-deposits.jpg)
+![Deposit Flow](assets/deposit-sequence.png)
 
 ---
 
-## 🔁 Sequence Diagram
+## 📝 Swagger API snippet
 
-```mermaid
-sequenceDiagram
-autonumber
+```yaml
+openapi: 3.0.0
+info:
+  title: RFP-1657 Add P2C Deposits/Withdrawals
+  version: 1.0.0
+  description: >
+    Integration with **[Payment Provider]** for **[Country]** for **[Broker]**.
+    <br><br>
+    <br><br>
+    ![Big picture user flow](https://i.postimg.cc/zvvD0Ym0/UI-flow-for-deposits.jpg)
 
-actor Client
+servers:
+  - url: https://sandbox.[domain1]
 
-== CLient flow ==
-activate Client
-Client -> UPP ++: Select Local bank transfer method\nfill amount \npress press deposit
-UPP -> PHUB ++: requestDeposit\nmethod = pay_growpayments_receiptless_*_in
-PHUB -> PSA ++: /createIncomeTransfer\npaymentIntegrationCode = pay_growpayments_receiptless_*_in
-PSA -> PSA: save transfer
-PSA --> Kafka: psa-?--all: send transfer event
-PSA -> GrowPayments ++: <b><font color=green>POST: /api/v5/invoice/get_noreceipt
-GrowPayments --> PSA --: <b><font color=green>/api/v5/invoice/get response \n(redirect URL)
-PSA --> PHUB --: RedirectInfo, redirect url, transferId
-PHUB --> UPP --: RedirectInfo, redirect url, transferId
-UPP -> Client --: redirect url (GrowPayments)
-
-Client -> GrowPayments ++: load deposit page
-GrowPayments --> Client --: get requisites for a bank transfer
-
-par
-    Client -> Bank ++: Make transfer to the given requisites
-    Bank --> Client --: Done
-
-    Client -> UPP ++: load result page
-end par
-
-UPP -> PHUB ++: updateIncomeTransfer\nwith transferId
-PHUB -> PSA ++: updateIncomeTransfer\nwith transferId
-PSA -> PSA: get transfer from DB
-opt status not final
-    PSA -> GrowPayments ++: <b><font color=green>GET: Get payment status /api/v5/invoice/status
-    GrowPayments --> PSA --: <b><font color=green>status
-    PSA -> PSA: update transfer
-    PSA --> Kafka: psa-?--all: send transfer event
-end opt
-PSA -> PHUB --: Ok, transfer status
-PHUB -> UPP --: Ok, transfer status
-UPP -> Client --: result page
-deactivate Client
-
-== Statements ==
-    activate PSA
-    loop loop by async operation configuration
-    PSA -> GrowPayments ++: <b><font color=green>GET: Get payment status /api/v5/invoice/status
-    GrowPayments --> PSA --: <b><font color=green>status
-    PSA -> PSA: update transfer
-    PSA --> Kafka: transfer event
-    deactivate PSA
-end loop
-
-== Webhook ==
-activate GrowPayments
-GrowPayments -> PSA ++: <b><font color=green>status
-PSA -> PSA: update transfer
-PSA --> Kafka: transfer event
-PSA --> GrowPayments--: <b><font color=green>HTTP 200
-deactivate GrowPayments
-
+paths:
+  /api/v5/invoice/get_noreceipt:
+    post:
+      summary: Create deposit (no receipt)
+      operationId: createDeposit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: string
+                  example: "20000"
+                currency:
+                  type: string
+                  example: "ARS"
+                currency2currency:
+                  type: integer
+                  example: 1
+                filter_payment_system_types:
+                  type: array
+                  items:
+                    type: string
+                  example: ["netting_ars2"]
+                order_id:
+                  type: string
+                  example: "bff2fae8-7a88-11ec-90d6-021802250822"
+                order_desc:
+                  type: string
+                  example: "Order for order #1234"
+                return_url:
+                  type: string
+                  example: "https://[domain2]"
+                response_url:
+                  type: string
+                  example: "https://[domain3]"
+                cancel_url:
