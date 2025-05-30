@@ -14,7 +14,6 @@ Integration with **[Payment Provider]** for **[Country]** for **[Broker]**.
 
 ```mermaid
 sequenceDiagram
-  @startuml
 autonumber
 
 actor Client
@@ -74,5 +73,3 @@ PSA --> Kafka: transfer event
 PSA --> GrowPayments--: <b><font color=green>HTTP 200
 deactivate GrowPayments
 
-
-@enduml
